@@ -4,17 +4,10 @@ A local rebuild of the defunct **sgp.fyi** HDB resale-price explorer: search any
 HDB block, see its full resale history back to 2000, price/PSF trends, every
 transaction, and how it compares with blocks within 600 m.
 
-Runs on **CT 204 (side-projects)** at `/opt/sgpfyi`, on port 80:
-
-- http://sgp.lan/ or http://flats.lan/  (home network, via the AdGuard rewrite)
-- http://192.168.50.254/                (home network, any DNS)
-- https://side-projects.tail4fe555.ts.net:8444/  (tailnet, `tailscale serve`)
-
-DNS: AdGuard Home (CT 202) has static rewrites `sgp.lan` / `flats.lan` ->
-192.168.50.254 under `filtering.rewrites` (they need `enabled: true`, or AdGuard
-writes `enabled: false` back on restart and the name silently NXDOMAINs).
-Devices using the router (192.168.50.1) as DNS do not see those names — use the
-IP there.
+It runs on a small LXC container in my homelab, behind a local DNS name and a
+private mesh VPN. **There is no public instance** — this repo is the code, not a
+hosted service. `DEPLOY.local.md` (not committed) holds the real hostnames and
+ports for my own deployment.
 
 ## Stack
 
@@ -72,7 +65,7 @@ so a missed run catches up), rebuilds the DB and restarts the app.
 
 ### Deploying a change
 
-From CT 203 (or wherever), copy files to `/opt/sgpfyi` and restart:
+From the machine holding the working copy, sync the files and restart the service:
 
 ```bash
 rsync -av app.py ingest.py download.py static/ side-projects:/opt/sgpfyi/

@@ -11,3 +11,6 @@ __pycache__/
 # Logs / editor noise
 *.log
 .DS_Store
+
+# Local-only deployment notes
+DEPLOY.local.md
