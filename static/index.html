@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<title>sgp.fyi — HDB resale prices</title>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<meta name="theme-color" content="#ffffff" />
+<meta name="description" content="Search any HDB block in Singapore: resale price trends, PSF, every transaction since 2000, and how your block compares with its neighbours." />
+<meta property="og:title" content="sgp.fyi — HDB resale prices" />
+<meta property="og:description" content="Find out how much an HDB flat is worth. Price trends, PSF and every resale transaction since 2000." />
+<link rel="icon" href="static/favicon.svg" type="image/svg+xml" />
+<link rel="stylesheet" href="static/style.css?v={{v}}" />
+<script>
+  /* set the theme before first paint so there is no flash */
+  (function () {
+    try {
+      var t = localStorage.getItem("sgpfyi-theme");
+      if (t !== "light" && t !== "dark") {
+        t = window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
+      }
+      document.documentElement.setAttribute("data-theme", t);
+    } catch (e) {}
+  })();
+</script>
+</head>
+<body>
+<header class="topbar">
+  <a class="brand" href="#/" id="brand">
+    <span class="logo">🏠</span>
+    <span class="brandtext">sgp<span class="dim">.fyi</span></span>
+  </a>
+  <div class="topright">
+    <span class="topmeta" id="topmeta">HDB resale prices · 2000–2026</span>
+    <button id="themetoggle" class="themetoggle" type="button"
+            aria-label="Switch to dark mode" title="Switch theme"><span id="themeicon">🌙</span></button>
+  </div>
+</header>
+
+<main>
+  <!-- ░░ SEARCH ░░ -->
+  <section class="hero" id="hero">
+    <h1>How much is that HDB block worth?</h1>
+    <p class="sub">Every resale transaction since 2000 — price trends, PSF, nearby blocks. Search a postal code, street or block number.</p>
+    <div class="searchbox">
+      <svg class="sicon" viewBox="0 0 24 24" aria-hidden="true"><path d="M21 21l-4.35-4.35M17 10.5A6.5 6.5 0 1 1 4 10.5a6.5 6.5 0 0 1 13 0z" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+      <input id="search" type="search" autocomplete="off" spellcheck="false" placeholder="e.g. 560123 · Bishan St 13 · 501" aria-label="Search HDB block" />
+      <button id="clearbtn" class="clear" aria-label="Clear" hidden>&times;</button>
+      <ul id="suggest" class="suggest" role="listbox" hidden></ul>
+    </div>
+    <div class="chips" id="examples">
+      <span class="chiplabel">Try:</span>
+      <button class="chip" data-q="570176">570176</button>
+      <button class="chip" data-q="Bishan Street 13">Bishan St 13</button>
+      <button class="chip" data-q="Toa Payoh Lorong 4">Toa Payoh Lor 4</button>
+      <button class="chip" data-q="Boon Lay Avenue">Boon Lay Ave</button>
+    </div>
+  </section>
+
+  <!-- ░░ RESULT ░░ -->
+  <section id="result" hidden>
+    <div class="blockhead">
+      <div class="bh-main">
+        <div class="bh-title">
+          <h2 id="addr">—</h2>
+          <span class="pill" id="townpill"></span>
+        </div>
+        <div class="bh-meta" id="blockmeta"></div>
+      </div>
+      <div class="bh-actions">
+        <button class="btn ghost" id="copybtn" title="Copy link">🔗 Copy link</button>
+        <button class="btn ghost" id="maphbtn" title="Show map">🗺️ Map</button>
+      </div>
+    </div>
+
+    <div id="mapwrap" class="mapwrap" hidden>
+      <a id="maplink" class="mapcanvas" href="#" target="_blank" rel="noopener" title="Open in OpenStreetMap">
+        <div id="maptiles" class="maptiles"></div>
+        <div class="mappin" aria-hidden="true"></div>
+        <span class="mapnote">© OpenStreetMap contributors</span>
+      </a>
+    </div>
+
+    <div class="tiles" id="tiles"></div>
+
+    <div class="charttoolbar">
+      <span class="kicker">Trend view</span>
+      <div class="typechips" id="typechips"></div>
+    </div>
+
+    <div class="grid2">
+      <div class="card">
+        <div class="cardhead">
+          <h3>Price trend</h3>
+          <span class="hint" id="pricehint">quarterly median</span>
+        </div>
+        <div class="chartwrap"><canvas id="pricechart"></canvas></div>
+      </div>
+      <div class="card">
+        <div class="cardhead">
+          <h3>Price per sqft</h3>
+          <span class="hint" id="psfhint">quarterly median</span>
+        </div>
+        <div class="chartwrap"><canvas id="psfchart"></canvas></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="cardhead"><h3>By flat type</h3><span class="hint" id="typestats-hint"></span></div>
+      <div class="tablewrap"><table id="typetable" class="tbl"></table></div>
+    </div>
+
+    <div class="card">
+      <div class="cardhead">
+        <h3>All transactions</h3>
+        <div class="typechips" id="txfilter" role="group" aria-label="Filter by flat type"></div>
+      </div>
+      <div class="tablewrap scroll"><table id="txtable" class="tbl"></table></div>
+      <div class="tablefoot" id="txfoot"></div>
+    </div>
+
+    <div class="card">
+      <div class="cardhead">
+        <h3>Nearby blocks</h3>
+        <span class="hint" id="nearhint">nearest first · within 600 m · median PSF, last 18 months</span>
+      </div>
+      <div class="tablewrap"><table id="neartable" class="tbl"></table></div>
+    </div>
+  </section>
+
+  <section id="empty" class="empty">
+    <p>Data: <a href="https://data.gov.sg/datasets/d_8b84c4ee58e3cfc0ece0d773c8ca6abc/view" target="_blank" rel="noopener">HDB resale flat prices</a> (data.gov.sg, updated monthly) · geodata from OneMap · map tiles © OpenStreetMap contributors.</p>
+  </section>
+</main>
+
+<footer>
+  <div>
+    Rebuilt on the homelab · <span id="datastamp">—</span><br />
+    Data © Housing &amp; Development Board, <a href="https://data.gov.sg/open-data-licence" target="_blank" rel="noopener">Singapore Open Data Licence</a>.
+    Prices are indicative. Not a valuation.
+  </div>
+</footer>
+
+<script src="static/chart.umd.js?v={{v}}"></script>
+<script src="static/app.js?v={{v}}"></script>
+</body>
+</html>

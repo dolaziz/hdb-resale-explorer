@@ -1,0 +1,18 @@
+[Unit]
+Description=sgp.fyi — HDB resale transaction explorer
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+WorkingDirectory=/opt/sgpfyi
+ExecStart=/usr/bin/python3 /opt/sgpfyi/app.py
+Environment=SGPFYI_PORT=8090
+Environment=SGPFYI_HOST=0.0.0.0
+Restart=always
+RestartSec=3
+StandardOutput=append:/var/log/sgpfyi.log
+StandardError=append:/var/log/sgpfyi.log
+
+[Install]
+WantedBy=multi-user.target

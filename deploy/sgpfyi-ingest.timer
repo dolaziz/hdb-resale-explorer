@@ -1,0 +1,10 @@
+[Unit]
+Description=Run sgp.fyi ingest monthly (HDB publishes after the 1st working day)
+
+[Timer]
+OnCalendar=*-*-03 09:30:00
+Persistent=true
+RandomizedDelaySec=900
+
+[Install]
+WantedBy=timers.target

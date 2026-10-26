@@ -1,0 +1,13 @@
+# Runtime data: rebuilt by download.py + ingest.py, never commit
+data/
+*.db
+*.db-journal
+*.csv
+
+# Python
+__pycache__/
+*.pyc
+
+# Logs / editor noise
+*.log
+.DS_Store

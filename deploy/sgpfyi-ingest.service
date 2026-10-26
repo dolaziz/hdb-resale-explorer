@@ -1,0 +1,13 @@
+[Unit]
+Description=sgp.fyi monthly HDB data ingest
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=oneshot
+WorkingDirectory=/opt/sgpfyi
+ExecStart=/usr/bin/python3 /opt/sgpfyi/download.py
+ExecStart=/usr/bin/python3 /opt/sgpfyi/ingest.py
+ExecStartPost=/bin/systemctl restart sgpfyi.service
+StandardOutput=append:/var/log/sgpfyi-ingest.log
+StandardError=append:/var/log/sgpfyi-ingest.log
