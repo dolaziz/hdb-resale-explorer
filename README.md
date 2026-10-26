@@ -114,7 +114,7 @@ timer used in production (adjust paths/ports to taste).
 
 ## Licence & attribution
 
-Code is MIT — see `LICENSE`.
+Code is MIT — see `LICENSE`. The data carve-out lives in `NOTICE.md`.
 
 The **data is not** covered by that licence and is not mine to license:
 
